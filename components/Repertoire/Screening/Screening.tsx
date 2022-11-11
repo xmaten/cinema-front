@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Box, Button, Flex, Text } from '@chakra-ui/react'
 import { format } from 'date-fns'
+import Link from 'next/link'
 
 import { Screening as ScreeningType } from '../../../types/Screening'
 
@@ -24,7 +25,9 @@ export const Screening = ({ screening }: Props) => {
       </Flex>
 
       <Box marginLeft="auto">
-        <Button>Select seats</Button>
+        <Button as={Link} href={`/seats/${screening.id}`}>
+          Select seats
+        </Button>
       </Box>
     </Flex>
   )
