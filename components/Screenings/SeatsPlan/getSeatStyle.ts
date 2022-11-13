@@ -1,4 +1,17 @@
-export const getSeatStyle = (status: 'free' | 'reserved' | 'taken') => {
+export const getSeatStyle = (
+  status: 'free' | 'reserved' | 'taken',
+  isSelected: boolean,
+) => {
+  if (isSelected) {
+    return {
+      backgroundColor: 'green.800',
+      color: 'white',
+      _hover: {
+        backgroundColor: 'green.500',
+      },
+    }
+  }
+
   if (status === 'free') {
     return {
       backgroundColor: 'green.500',

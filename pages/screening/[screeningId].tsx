@@ -1,11 +1,12 @@
 import { GetServerSideProps } from 'next'
+import { Box } from '@chakra-ui/react'
+import { useState } from 'react'
 
 import { httpClient } from '../../lib/httpClient'
 import { ScreeningRoom } from '../../types/ScreeningRoom'
 import { generateSeats } from '../../utils/generateSeats'
 import { Seat } from '../../types/Seat'
 import { SeatsPlan } from '../../components/Screenings/SeatsPlan/SeatsPlan'
-import { Box } from '@chakra-ui/react'
 import { ScreenIndicator } from '../../components/Screenings/ScreenIndicator/ScreenIndicator'
 
 type Props = {
@@ -14,10 +15,24 @@ type Props = {
 }
 
 const Screening = ({ screeningRoom, seats }: Props) => {
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+
+  const handleSeatClick = (seat: string) => {
+    if (selectedSeats.includes(seat)) {
+      setSelectedSeats((prev) => prev.filter((s) => s !== seat))
+    } else {
+      setSelectedSeats((prev) => [...prev, seat])
+    }
+  }
+
   return (
     <Box maxWidth="600px" margin="0 auto">
       <ScreenIndicator />
-      <SeatsPlan seats={seats} />
+      <SeatsPlan
+        seats={seats}
+        selectedSeats={selectedSeats}
+        onSeatClick={handleSeatClick}
+      />
     </Box>
   )
 }
