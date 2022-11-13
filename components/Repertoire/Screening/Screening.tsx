@@ -25,7 +25,7 @@ export const Screening = ({ screening }: Props) => {
       </Flex>
 
       <Box marginLeft="auto">
-        <Button as={Link} href={`/seats/${screening.id}`}>
+        <Button as={Link} href={`/screening/${screening.id}`}>
           Select seats
         </Button>
       </Box>
