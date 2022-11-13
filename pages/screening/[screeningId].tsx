@@ -1,13 +1,13 @@
 import { GetServerSideProps } from 'next'
-import { Box } from '@chakra-ui/react'
+import { Box, Button } from '@chakra-ui/react'
 import { useState } from 'react'
 
 import { httpClient } from '../../lib/httpClient'
 import { ScreeningRoom } from '../../types/ScreeningRoom'
 import { generateSeats } from '../../utils/generateSeats'
 import { Seat } from '../../types/Seat'
-import { SeatsPlan } from '../../components/Screenings/SeatsPlan/SeatsPlan'
-import { ScreenIndicator } from '../../components/Screenings/ScreenIndicator/ScreenIndicator'
+import { SelectingSeats } from '../../components/Screenings/SelectingSeats/SelectingSeats'
+import { SelectingTickets } from '../../components/Screenings/SelectingTickets/SelectingTickets'
 
 type Props = {
   screeningRoom: ScreeningRoom
@@ -15,6 +15,7 @@ type Props = {
 }
 
 const Screening = ({ screeningRoom, seats }: Props) => {
+  const [step, setStep] = useState<'seats' | 'tickets' | 'payment'>('seats')
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
 
   const handleSeatClick = (seat: string) => {
@@ -25,14 +26,21 @@ const Screening = ({ screeningRoom, seats }: Props) => {
     }
   }
 
+  //TODO: Add steps indicator
   return (
     <Box maxWidth="600px" margin="0 auto">
-      <ScreenIndicator />
-      <SeatsPlan
-        seats={seats}
-        selectedSeats={selectedSeats}
-        onSeatClick={handleSeatClick}
-      />
+      {step === 'seats' && (
+        <SelectingSeats
+          seats={seats}
+          selectedSeats={selectedSeats}
+          onSeatClick={handleSeatClick}
+          nextStep={() => setStep('tickets')}
+        />
+      )}
+
+      {step === 'tickets' && (
+        <SelectingTickets nextStep={() => setStep('payment')} />
+      )}
     </Box>
   )
 }
