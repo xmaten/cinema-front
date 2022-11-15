@@ -8,6 +8,7 @@ import { generateSeats } from '../../utils/generateSeats'
 import { Seat } from '../../types/Seat'
 import { SelectingSeats } from '../../components/Screenings/SelectingSeats/SelectingSeats'
 import { SelectingTickets } from '../../components/Screenings/SelectingTickets/SelectingTickets'
+import { SelectedTicket, TicketType } from '../../types/SelectedTicket'
 
 type Props = {
   screeningRoom: ScreeningRoom
@@ -16,14 +17,31 @@ type Props = {
 
 const Screening = ({ screeningRoom, seats }: Props) => {
   const [step, setStep] = useState<'seats' | 'tickets' | 'payment'>('seats')
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+  const [selectedTickets, setSelectedTickets] = useState<SelectedTicket[]>([])
 
   const handleSeatClick = (seat: string) => {
-    if (selectedSeats.includes(seat)) {
-      setSelectedSeats((prev) => prev.filter((s) => s !== seat))
+    const seats = selectedTickets.map((seat) => seat.seat)
+
+    if (seats.includes(seat)) {
+      setSelectedTickets((prev) => prev.filter((s) => s.seat !== seat))
     } else {
-      setSelectedSeats((prev) => [...prev, seat])
+      setSelectedTickets((prev) => [...prev, { seat, type: 'adult' }])
     }
+  }
+
+  const handleChangeTicketType = (type: TicketType, ticket: SelectedTicket) => {
+    const newTickets = selectedTickets.map((t) => {
+      if (t.seat === ticket.seat) {
+        return {
+          ...t,
+          type,
+        }
+      }
+
+      return t
+    })
+
+    setSelectedTickets(newTickets)
   }
 
   //TODO: Add steps indicator
@@ -32,14 +50,18 @@ const Screening = ({ screeningRoom, seats }: Props) => {
       {step === 'seats' && (
         <SelectingSeats
           seats={seats}
-          selectedSeats={selectedSeats}
+          selectedTickets={selectedTickets}
           onSeatClick={handleSeatClick}
           nextStep={() => setStep('tickets')}
         />
       )}
 
       {step === 'tickets' && (
-        <SelectingTickets nextStep={() => setStep('payment')} />
+        <SelectingTickets
+          nextStep={() => setStep('payment')}
+          selectedTickets={selectedTickets}
+          onChangeTicketType={handleChangeTicketType}
+        />
       )}
     </Box>
   )

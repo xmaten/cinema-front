@@ -2,16 +2,17 @@ import { ScreenIndicator } from '../ScreenIndicator/ScreenIndicator'
 import { SeatsPlan } from '../SeatsPlan/SeatsPlan'
 import { NextStepButton } from '../NextStepButton/NextStepButton'
 import { Seat } from '../../../types/Seat'
+import { SelectedTicket } from '../../../types/SelectedTicket'
 
 type Props = {
   seats: Seat[][]
-  selectedSeats: string[]
+  selectedTickets: SelectedTicket[]
   onSeatClick: (seat: string) => void
   nextStep: () => void
 }
 
 export const SelectingSeats = ({
-  selectedSeats,
+  selectedTickets,
   seats,
   onSeatClick,
   nextStep,
@@ -21,10 +22,10 @@ export const SelectingSeats = ({
       <ScreenIndicator />
       <SeatsPlan
         seats={seats}
-        selectedSeats={selectedSeats}
+        selectedTickets={selectedTickets}
         onSeatClick={onSeatClick}
       />
-      {selectedSeats.length > 0 && (
+      {selectedTickets.length > 0 && (
         <NextStepButton onClick={nextStep} content="Select tickets types" />
       )}
     </>
