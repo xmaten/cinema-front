@@ -9,15 +9,24 @@ import { Seat } from '../../types/Seat'
 import { SelectingSeats } from '../../components/Screenings/SelectingSeats/SelectingSeats'
 import { SelectingTickets } from '../../components/Screenings/SelectingTickets/SelectingTickets'
 import { SelectedTicket, TicketType } from '../../types/SelectedTicket'
+import { useMutation } from '@tanstack/react-query'
 
 type Props = {
   screeningRoom: ScreeningRoom
   seats: Seat[][]
 }
 
+type ReserveSeatsPayload = {
+  seats: string[]
+  screeningRoomId: number
+}
+
 const Screening = ({ screeningRoom, seats }: Props) => {
   const [step, setStep] = useState<'seats' | 'tickets' | 'payment'>('seats')
   const [selectedTickets, setSelectedTickets] = useState<SelectedTicket[]>([])
+  const reserveSeatsMutation = useMutation((seats: ReserveSeatsPayload) =>
+    httpClient.post('/reservations/start', seats),
+  )
 
   const handleSeatClick = (seat: string) => {
     const seats = selectedTickets.map((seat) => seat.seat)
@@ -44,6 +53,20 @@ const Screening = ({ screeningRoom, seats }: Props) => {
     setSelectedTickets(newTickets)
   }
 
+  const handleSeatsSelected = () => {
+    const seats = selectedTickets.map((ticket) => ticket.seat)
+    const payload = {
+      seats,
+      screeningRoomId: screeningRoom.id,
+    }
+
+    reserveSeatsMutation.mutate(payload, {
+      onSuccess() {
+        setStep('tickets')
+      },
+    })
+  }
+
   //TODO: Add steps indicator
   return (
     <Box maxWidth="600px" margin="0 auto">
@@ -52,7 +75,7 @@ const Screening = ({ screeningRoom, seats }: Props) => {
           seats={seats}
           selectedTickets={selectedTickets}
           onSeatClick={handleSeatClick}
-          nextStep={() => setStep('tickets')}
+          nextStep={handleSeatsSelected}
         />
       )}
 
