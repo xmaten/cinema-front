@@ -44,7 +44,10 @@ export const SelectingTickets = ({
                     placeholder="Select ticket type"
                     value={ticket.type}
                     onChange={(e) =>
-                      onChangeTicketType(e.target.value as TicketType, ticket)
+                      onChangeTicketType(
+                        e.target.value as unknown as TicketType,
+                        ticket,
+                      )
                     }
                   >
                     {TICKET_TYPES.map((type) => (

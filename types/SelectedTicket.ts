@@ -1,4 +1,9 @@
-export type TicketType = 'kid' | 'adult' | 'old'
+export enum TicketType {
+  NOT_SET,
+  ADULT,
+  KID,
+  OLD,
+}
 
 export type SelectedTicket = {
   seat: string

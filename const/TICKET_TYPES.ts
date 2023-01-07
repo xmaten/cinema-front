@@ -2,15 +2,15 @@ import { TicketType } from '../types/SelectedTicket'
 
 export const TICKET_TYPES: Array<{ value: TicketType; label: string }> = [
   {
-    value: 'adult',
+    value: TicketType.ADULT,
     label: 'Adult',
   },
   {
-    value: 'kid',
+    value: TicketType.KID,
     label: 'Kid',
   },
   {
-    value: 'old',
+    value: TicketType.OLD,
     label: 'Old',
   },
 ]

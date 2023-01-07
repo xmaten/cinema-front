@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next'
 import { Box, Button } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { httpClient } from '../../lib/httpClient'
 import { ScreeningRoom } from '../../types/ScreeningRoom'
@@ -10,6 +10,7 @@ import { SelectingSeats } from '../../components/Screenings/SelectingSeats/Selec
 import { SelectingTickets } from '../../components/Screenings/SelectingTickets/SelectingTickets'
 import { SelectedTicket, TicketType } from '../../types/SelectedTicket'
 import { useMutation } from '@tanstack/react-query'
+import { Reservation } from '../../types/Reservation'
 
 type Props = {
   screeningRoom: ScreeningRoom
@@ -21,11 +22,21 @@ type ReserveSeatsPayload = {
   screeningRoomId: number
 }
 
+type UpdateTicketsPayload = {
+  reservationId: number
+  selectedTickets: SelectedTicket[]
+}
+
 const Screening = ({ screeningRoom, seats }: Props) => {
   const [step, setStep] = useState<'seats' | 'tickets' | 'payment'>('seats')
   const [selectedTickets, setSelectedTickets] = useState<SelectedTicket[]>([])
+  const reservationId = useRef<null | number>(null)
   const reserveSeatsMutation = useMutation((seats: ReserveSeatsPayload) =>
-    httpClient.post('/reservations/start', seats),
+    httpClient.post<Reservation>('/reservations/start', seats),
+  )
+  const updateTicketTypesMutation = useMutation(
+    (tickets: UpdateTicketsPayload) =>
+      httpClient.put('/reservations/tickets', tickets),
   )
 
   const handleSeatClick = (seat: string) => {
@@ -34,7 +45,7 @@ const Screening = ({ screeningRoom, seats }: Props) => {
     if (seats.includes(seat)) {
       setSelectedTickets((prev) => prev.filter((s) => s.seat !== seat))
     } else {
-      setSelectedTickets((prev) => [...prev, { seat, type: 'adult' }])
+      setSelectedTickets((prev) => [...prev, { seat, type: 1 }])
     }
   }
 
@@ -61,10 +72,26 @@ const Screening = ({ screeningRoom, seats }: Props) => {
     }
 
     reserveSeatsMutation.mutate(payload, {
-      onSuccess() {
+      onSuccess({ data }) {
+        reservationId.current = data.id
         setStep('tickets')
       },
     })
+  }
+
+  const handleTicketTypesSelected = () => {
+    const payload: UpdateTicketsPayload = {
+      reservationId: reservationId.current || -1,
+      selectedTickets,
+    }
+
+    if (payload.reservationId !== -1) {
+      updateTicketTypesMutation.mutate(payload, {
+        onSuccess() {
+          // setStep('payment')
+        },
+      })
+    }
   }
 
   //TODO: Add steps indicator
@@ -81,9 +108,9 @@ const Screening = ({ screeningRoom, seats }: Props) => {
 
       {step === 'tickets' && (
         <SelectingTickets
-          nextStep={() => setStep('payment')}
           selectedTickets={selectedTickets}
           onChangeTicketType={handleChangeTicketType}
+          nextStep={handleTicketTypesSelected}
         />
       )}
     </Box>
